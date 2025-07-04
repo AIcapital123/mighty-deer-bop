@@ -7,10 +7,13 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { MadeWithDyad } from '@/components/made-with-dyad';
 import {
   Calendar, Phone, ShoppingCart, Heart, Utensils,
-  Brush, TrendingUp, DollarSign
+  Brush, TrendingUp, DollarSign, Brain // Changed Head to Brain
 } from 'lucide-react';
 import { Note, Role } from '@/types/app';
-import { showSuccess } from '@/utils/toast'; // Import toast utility
+import { showSuccess } from '@/utils/toast';
+import ProfileGreeting from '@/components/ProfileGreeting';
+import PainModeBanner from '@/components/PainModeBanner';
+import { cn } from '@/lib/utils'; // Import cn for conditional class names
 
 // Placeholder components for each tab
 import AppointmentsTab from '@/pages/tabs/AppointmentsTab';
@@ -39,6 +42,7 @@ const DashboardPage = () => {
     productivity: [],
     salary_logs: [],
   });
+  const [isPainMode, setIsPainMode] = useState(false); // State for Pain Mode
 
   useEffect(() => {
     if (location.state && location.state.selectedRole) {
@@ -73,46 +77,72 @@ const DashboardPage = () => {
   };
 
   const tabs = [
-    { id: 'appointments', label: t('appointments'), icon: Calendar, component: AppointmentsTab, roles: ['boss', 'assistant'] },
-    { id: 'calls', label: t('calls'), icon: Phone, component: CallsTab, roles: ['boss', 'assistant'] },
-    { id: 'shopping', label: t('shopping'), icon: ShoppingCart, component: ShoppingTab, roles: ['boss', 'assistant'] },
-    { id: 'health', label: t('health'), icon: Heart, component: HealthTab, roles: ['boss', 'assistant'] },
-    { id: 'food', label: t('food'), icon: Utensils, component: FoodTab, roles: ['boss', 'assistant'] },
-    { id: 'cleaning', label: t('cleaning'), icon: Brush, component: CleaningTab, roles: ['boss', 'assistant'] },
-    { id: 'productivity', label: t('productivity'), icon: TrendingUp, component: ProductivityTab, roles: ['boss', 'assistant'] },
-    { id: 'salary_logs', label: t('salary_logs'), icon: DollarSign, component: SalaryLogsTab, roles: ['assistant'] }, // Assistant View Only
+    { id: 'appointments', label: t('appointments'), icon: Calendar, component: AppointmentsTab, roles: ['boss', 'assistant'], colorClass: 'text-blue-600 dark:text-blue-400' },
+    { id: 'calls', label: t('calls'), icon: Phone, component: CallsTab, roles: ['boss', 'assistant'], colorClass: 'text-purple-600 dark:text-purple-400' },
+    { id: 'shopping', label: t('shopping'), icon: ShoppingCart, component: ShoppingTab, roles: ['boss', 'assistant'], colorClass: 'text-green-600 dark:text-green-400' },
+    { id: 'health', label: t('health'), icon: Heart, component: HealthTab, roles: ['boss', 'assistant'], colorClass: 'text-red-600 dark:text-red-400' },
+    { id: 'food', label: t('food'), icon: Utensils, component: FoodTab, roles: ['boss', 'assistant'], colorClass: 'text-yellow-600 dark:text-yellow-400' },
+    { id: 'cleaning', label: t('cleaning'), icon: Brush, component: CleaningTab, roles: ['boss', 'assistant'], colorClass: 'text-indigo-600 dark:text-indigo-400' },
+    { id: 'productivity', label: t('productivity'), icon: TrendingUp, component: ProductivityTab, roles: ['boss', 'assistant'], colorClass: 'text-orange-600 dark:text-orange-400' },
+    { id: 'salary_logs', label: t('salary_logs'), icon: DollarSign, component: SalaryLogsTab, roles: ['assistant'], colorClass: 'text-teal-600 dark:text-teal-400' }, // Assistant View Only
   ];
 
   const filteredTabs = tabs.filter(tab => tab.roles.includes(selectedRole));
+  const urgentTabs = ['health', 'food', 'cleaning', 'productivity']; // Tabs to highlight in pain mode
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-4 md:p-8">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold mb-4 md:mb-0">
-          BossCare - {selectedRole === 'boss' ? t('boss') : t('assistant')} Dashboard
-        </h1>
-        <div className="flex items-center space-x-2">
-          <Label htmlFor="language-toggle">{t('english')}</Label>
-          <Switch
-            id="language-toggle"
-            checked={language === 'th'}
-            onCheckedChange={handleLanguageToggle}
-          />
-          <Label htmlFor="language-toggle">{t('thai')}</Label>
+      <div className="sticky top-0 z-50 bg-gray-50 dark:bg-gray-950 pb-4 border-b border-gray-200 dark:border-gray-800">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-4">
+          <ProfileGreeting role={selectedRole} />
+          <div className="flex items-center space-x-4 mt-4 md:mt-0">
+            {selectedRole === 'assistant' && (
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="pain-mode-toggle" className="text-gray-700 dark:text-gray-200 flex items-center space-x-1">
+                  <Brain className="h-4 w-4" /> {/* Changed Head to Brain */}
+                  <span>{t('pain_mode_on')}</span>
+                </Label>
+                <Switch
+                  id="pain-mode-toggle"
+                  checked={isPainMode}
+                  onCheckedChange={setIsPainMode}
+                />
+              </div>
+            )}
+            <div className="flex items-center space-x-2">
+              <Label htmlFor="language-toggle" className="text-gray-700 dark:text-gray-200">{t('english')}</Label>
+              <Switch
+                id="language-toggle"
+                checked={language === 'th'}
+                onCheckedChange={handleLanguageToggle}
+              />
+              <Label htmlFor="language-toggle" className="text-gray-700 dark:text-gray-200">{t('thai')}</Label>
+            </div>
+          </div>
         </div>
+        {isPainMode && selectedRole === 'assistant' && <PainModeBanner />}
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-4">
         <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto flex-wrap">
           {filteredTabs.map((tab) => (
-            <TabsTrigger key={tab.id} value={tab.id} className="flex-grow flex items-center justify-center space-x-2">
+            <TabsTrigger
+              key={tab.id}
+              value={tab.id}
+              className={cn(
+                "flex-grow flex items-center justify-center space-x-2",
+                tab.colorClass, // Apply base color
+                isPainMode && selectedRole === 'assistant' && !urgentTabs.includes(tab.id) && "opacity-50 grayscale", // Dim non-urgent tabs
+                isPainMode && selectedRole === 'assistant' && urgentTabs.includes(tab.id) && "ring-2 ring-red-500 dark:ring-red-400" // Highlight urgent tabs
+              )}
+            >
               {tab.icon && React.createElement(tab.icon, { className: "h-4 w-4" })}
               <span>{tab.label}</span>
             </TabsTrigger>
           ))}
         </TabsList>
         {filteredTabs.map((tab) => {
-          const TabComponent = tab.component;
+          const TabComponent = tab.component; // This is now correctly typed
           return (
             <TabsContent key={tab.id} value={tab.id} className="mt-4">
               <TabComponent

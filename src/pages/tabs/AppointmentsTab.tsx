@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import NoteInput from '@/components/NoteInput';
 import NoteDisplay from '@/components/NoteDisplay';
+import HistoryModal from '@/components/HistoryModal'; // Import HistoryModal
+import { Button } from '@/components/ui/button'; // Import Button
 import { Note, Role } from '@/types/app';
 
 interface TabProps {
@@ -12,6 +14,8 @@ interface TabProps {
 
 const AppointmentsTab: React.FC<TabProps> = ({ role, notes, onAddNote }) => {
   const { t } = useLanguage();
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+
   return (
     <div className="p-4 border rounded-lg bg-white dark:bg-gray-800 shadow-sm">
       <h2 className="text-2xl font-semibold mb-4">{t('appointments')}</h2>
@@ -21,7 +25,17 @@ const AppointmentsTab: React.FC<TabProps> = ({ role, notes, onAddNote }) => {
       
       <NoteInput onAddNote={onAddNote} placeholder={t('add_appointment_note')} role={role} />
       <NoteDisplay notes={notes} />
-      {/* Future content for Appointments */}
+
+      <Button onClick={() => setIsHistoryModalOpen(true)} className="mt-4 w-full">
+        {t('view_edit_history')}
+      </Button>
+
+      <HistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+        notes={notes}
+        title={t('appointments')}
+      />
     </div>
   );
 };

@@ -161,7 +161,25 @@ const translations: Translation = {
   },
   'language_toggle_tip': { en: "Switch between English and Thai — everything updates automatically.", th: "สลับระหว่างภาษาอังกฤษและภาษาไทย — ทุกอย่างจะอัปเดตโดยอัตโนมัติ" },
   'logout_message': { en: "Done for now? You can log out or just leave it open.", th: "เสร็จแล้วใช่ไหม? คุณสามารถออกจากระบบหรือเปิดทิ้งไว้ก็ได้" },
-  'footer_text': { en: "Built for two people who make each other better.", th: "สร้างขึ้นเพื่อคนสองคนที่ทำให้กันและกันดีขึ้น" }
+  'footer_text': { en: "Built for two people who make each other better.", th: "สร้างขึ้นเพื่อคนสองคนที่ทำให้กันและกันดีขึ้น" },
+  'good_morning': { en: 'Good morning', th: 'สวัสดีตอนเช้า' },
+  'good_afternoon': { en: 'Good afternoon', th: 'สวัสดีตอนบ่าย' },
+  'good_evening': { en: 'Good evening', th: 'สวัสดีตอนเย็น' },
+  'todays_top_tasks': { en: 'Today’s Top Tasks', th: 'งานสำคัญประจำวัน' },
+  'add_new_task': { en: 'Add a new task...', th: 'เพิ่มงานใหม่...' },
+  'add_task': { en: 'Add Task', th: 'เพิ่มงาน' },
+  'done': { en: 'Done', th: 'เสร็จแล้ว' },
+  'in_progress': { en: 'In Progress', th: 'กำลังดำเนินการ' },
+  'missed': { en: 'Missed', th: 'พลาด' },
+  'status': { en: 'Status', th: 'สถานะ' },
+  'task_update_note': { en: 'This automatically updates the boss’s view.', th: 'สิ่งนี้จะอัปเดตมุมมองของเจ้านายโดยอัตโนมัติ' },
+  'pain_mode_on': { en: 'Pain Mode ON', th: 'โหมดเจ็บปวดเปิดอยู่' },
+  'pain_mode_banner_message': { en: 'Boss is in pain today. Prioritize wellness + quiet.', th: 'วันนี้เจ้านายกำลังเจ็บปวด โปรดให้ความสำคัญกับสุขภาพและความเงียบสงบ' },
+  'view_edit_history': { en: 'View Edit History', th: 'ดูประวัติการแก้ไข' },
+  'history': { en: 'History', th: 'ประวัติ' },
+  'history_description': { en: 'Review changes made to this section.', th: 'ตรวจสอบการเปลี่ยนแปลงที่ทำในส่วนนี้' },
+  'no_history_yet': { en: 'No history yet.', th: 'ยังไม่มีประวัติ' },
+  'close': { en: 'Close', th: 'ปิด' },
 };
 
 interface LanguageContextType {
