@@ -5,6 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+// Import avatar images
+import bossAvatar from '@/assets/images/boss-avatar.png';
+import assistantAvatar from '@/assets/images/assistant-avatar.jpg';
+
 interface RoleSelectorProps {
   onRoleSelect: (role: 'boss' | 'assistant') => void;
 }
@@ -42,6 +46,26 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ onRoleSelect }) => {
         <h1 className="text-3xl font-bold mb-2 text-gray-800 dark:text-gray-100">{t('app_name')}</h1>
         <p className="text-md mb-6 text-gray-600 dark:text-gray-300">{t('app_description')}</p>
         <h2 className="text-xl mb-6 text-gray-700 dark:text-gray-200">{t('select_your_role')}</h2>
+        
+        {selectedRole && (
+          <div className="mb-6">
+            {selectedRole === 'boss' && (
+              <img
+                src={bossAvatar}
+                alt="Boss Avatar"
+                className="w-24 h-24 rounded-full object-cover mx-auto border-2 border-blue-500 dark:border-blue-400"
+              />
+            )}
+            {selectedRole === 'assistant' && (
+              <img
+                src={assistantAvatar}
+                alt="Assistant Avatar"
+                className="w-24 h-24 rounded-full object-cover mx-auto border-2 border-purple-500 dark:border-purple-400"
+              />
+            )}
+          </div>
+        )}
+
         <RadioGroup onValueChange={handleSelect} className="flex flex-col space-y-4 mb-6">
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="boss" id="r1" />
