@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { User, UserCog } from 'lucide-react';
 
 interface RoleSelectorProps {
   onRoleSelect: (role: 'boss' | 'assistant') => void;
@@ -47,14 +48,14 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ onRoleSelect }) => {
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="boss" id="r1" />
             <Label htmlFor="r1" className="text-lg text-gray-700 dark:text-gray-200 flex items-center">
-              <img src="/avatars/IMG_5529.PNG" alt={t('boss')} className="w-6 h-6 mr-2 rounded-full object-cover" />
+              <UserCog className="w-6 h-6 mr-2" />
               {t('i_am_the_boss')}
             </Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="assistant" id="r2" />
             <Label htmlFor="r2" className="text-lg text-gray-700 dark:text-gray-200 flex items-center">
-              <img src="/avatars/IMG_5528.JPG" alt={t('assistant')} className="w-6 h-6 mr-2 rounded-full object-cover" />
+              <User className="w-6 h-6 mr-2" />
               {t('i_am_the_assistant')}
             </Label>
           </div>
