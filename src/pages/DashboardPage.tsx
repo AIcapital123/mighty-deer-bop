@@ -179,13 +179,13 @@ const DashboardPage = () => {
               key={tab.id}
               value={tab.id}
               className={cn(
-                "flex-grow flex items-center justify-center space-x-2",
+                "flex-grow flex items-center justify-center space-x-2 text-lg",
                 tab.colorClass,
                 isPainMode && selectedRole === 'assistant' && !urgentTabs.includes(tab.id) && "opacity-50 grayscale",
                 isPainMode && selectedRole === 'assistant' && urgentTabs.includes(tab.id) && "ring-2 ring-red-500 dark:ring-red-400"
               )}
             >
-              {tab.icon && React.createElement(tab.icon, { className: "h-4 w-4" })}
+              {tab.icon && React.createElement(tab.icon, { className: "h-5 w-5" })}
               <span>{tab.label}</span>
             </TabsTrigger>
           ))}
