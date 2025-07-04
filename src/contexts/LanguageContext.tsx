@@ -37,6 +37,7 @@ const translations: Translation = {
   'notes_history': { en: 'Notes History', th: 'ประวัติบันทึก' },
   'added_by': { en: 'Added by', th: 'เพิ่มโดย' },
   'add_appointment_note': { en: 'Add a note about appointments...', th: 'เพิ่มบันทึกเกี่ยวกับการนัดหมาย...' },
+  'deleted': { en: 'Deleted', th: 'ถูกลบ' },
 
   // New content from UI Copy & Content Pack
   'motivational_messages': {

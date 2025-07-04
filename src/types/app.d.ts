@@ -8,6 +8,7 @@ export interface Note {
   added_by: Role;
   created_at: string;
   tab_id: string;
+  is_deleted?: boolean;
 }
 
 export interface TabData {

@@ -10,9 +10,10 @@ interface TabProps {
   role: Role;
   notes: Note[];
   onAddNote: (content: string) => void;
+  onDeleteNote: (noteId: number) => void;
 }
 
-const HealthTab: React.FC<TabProps> = ({ role, notes, onAddNote }) => {
+const HealthTab: React.FC<TabProps> = ({ role, notes, onAddNote, onDeleteNote }) => {
   const { t } = useLanguage();
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
@@ -23,7 +24,7 @@ const HealthTab: React.FC<TabProps> = ({ role, notes, onAddNote }) => {
         {role === 'boss' ? 'Boss view for Health.' : 'Assistant view for Health.'}
       </p>
       <NoteInput onAddNote={onAddNote} placeholder={t('add_a_note')} role={role} />
-      <NoteDisplay notes={notes} />
+      <NoteDisplay notes={notes.filter(n => !n.is_deleted)} onDeleteNote={onDeleteNote} />
 
       <Button onClick={() => setIsHistoryModalOpen(true)} className="mt-4 w-full">
         {t('view_edit_history')}

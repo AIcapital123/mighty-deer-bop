@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
@@ -17,7 +17,6 @@ import PainModeBanner from '@/components/PainModeBanner';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 
-// Placeholder components for each tab
 import AppointmentsTab from '@/pages/tabs/AppointmentsTab';
 import CallsTab from '@/pages/tabs/CallsTab';
 import ShoppingTab from '@/pages/tabs/ShoppingTab';
@@ -34,7 +33,7 @@ const DashboardPage = () => {
 
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [activeTab, setActiveTab] = useState<string>('appointments');
-  const [notes, setNotes] = useState<Note[]>([]);
+  const [allNotes, setAllNotes] = useState<Note[]>([]);
   const [isPainMode, setIsPainMode] = useState(false);
 
   useEffect(() => {
@@ -45,39 +44,43 @@ const DashboardPage = () => {
     }
   }, [location.state, navigate]);
 
-  useEffect(() => {
-    const fetchNotes = async () => {
-      const { data, error } = await supabase
-        .from('notes')
-        .select('*')
-        .order('created_at', { ascending: false });
+  const fetchNotes = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('notes')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching notes:', error);
-        toast.error('Failed to load notes.');
-      } else if (data) {
-        setNotes(data);
-      }
-    };
-
-    fetchNotes();
+    if (error) {
+      console.error('Error fetching notes:', error);
+      toast.error('Failed to load notes.');
+    } else if (data) {
+      setAllNotes(data);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchNotes();
+  }, [fetchNotes]);
 
   useEffect(() => {
     if (!selectedRole) return;
 
     const channel = supabase
-      .channel('realtime-notes')
+      .channel('realtime-notes-all-events')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'notes' },
+        { event: '*', schema: 'public', table: 'notes' },
         (payload) => {
-          const newNote = payload.new as Note;
-          setNotes((prevNotes) => [newNote, ...prevNotes].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
+          // Refetch all notes to ensure consistency
+          fetchNotes();
 
-          if (newNote.added_by !== selectedRole) {
-            const shortContent = newNote.content.length > 30 ? `${newNote.content.substring(0, 30)}...` : newNote.content;
-            toast.info(`New note from ${t(newNote.added_by)} in ${t(newNote.tab_id)}: "${shortContent}"`);
+          // Handle notifications
+          if (payload.eventType === 'INSERT') {
+            const newNote = payload.new as Note;
+            if (newNote.added_by !== selectedRole) {
+              const shortContent = newNote.content.length > 30 ? `${newNote.content.substring(0, 30)}...` : newNote.content;
+              toast.info(`New note from ${t(newNote.added_by)} in ${t(newNote.tab_id)}: "${shortContent}"`);
+            }
           }
         }
       )
@@ -86,10 +89,10 @@ const DashboardPage = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [selectedRole, t]);
+  }, [selectedRole, t, fetchNotes]);
 
   if (!selectedRole) {
-    return null; // Or a loading spinner
+    return null;
   }
 
   const handleLanguageToggle = (checked: boolean) => {
@@ -106,6 +109,19 @@ const DashboardPage = () => {
       toast.error('Failed to add note.');
     } else {
       showSuccess(t('note_added_successfully'));
+    }
+  };
+
+  const handleDeleteNote = async (noteId: number) => {
+    const { error } = await supabase
+      .from('notes')
+      .update({ is_deleted: true })
+      .eq('id', noteId);
+
+    if (error) {
+      toast.error('Failed to delete note.');
+    } else {
+      toast.success('Note moved to history.');
     }
   };
 
@@ -180,8 +196,9 @@ const DashboardPage = () => {
             <TabsContent key={tab.id} value={tab.id} className="mt-4">
               <TabComponent
                 role={selectedRole}
-                notes={notes.filter(note => note.tab_id === tab.id)}
+                notes={allNotes.filter(note => note.tab_id === tab.id)}
                 onAddNote={(content: string) => handleAddNote(tab.id, content, selectedRole)}
+                onDeleteNote={handleDeleteNote}
               />
             </TabsContent>
           );

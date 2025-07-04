@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import NoteInput from '@/components/NoteInput';
 import NoteDisplay from '@/components/NoteDisplay';
-import DailyChecklist from '@/components/DailyChecklist'; // Import DailyChecklist
+import DailyChecklist from '@/components/DailyChecklist';
 import HistoryModal from '@/components/HistoryModal';
 import { Button } from '@/components/ui/button';
 import { Note, Role } from '@/types/app';
@@ -11,9 +11,10 @@ interface TabProps {
   role: Role;
   notes: Note[];
   onAddNote: (content: string) => void;
+  onDeleteNote: (noteId: number) => void;
 }
 
-const ProductivityTab: React.FC<TabProps> = ({ role, notes, onAddNote }) => {
+const ProductivityTab: React.FC<TabProps> = ({ role, notes, onAddNote, onDeleteNote }) => {
   const { t } = useLanguage();
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
@@ -31,7 +32,7 @@ const ProductivityTab: React.FC<TabProps> = ({ role, notes, onAddNote }) => {
       )}
 
       <NoteInput onAddNote={onAddNote} placeholder={t('add_a_note')} role={role} />
-      <NoteDisplay notes={notes} />
+      <NoteDisplay notes={notes.filter(n => !n.is_deleted)} onDeleteNote={onDeleteNote} />
 
       <Button onClick={() => setIsHistoryModalOpen(true)} className="mt-4 w-full">
         {t('view_edit_history')}

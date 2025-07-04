@@ -2,17 +2,18 @@ import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import NoteInput from '@/components/NoteInput';
 import NoteDisplay from '@/components/NoteDisplay';
-import HistoryModal from '@/components/HistoryModal'; // Import HistoryModal
-import { Button } from '@/components/ui/button'; // Import Button
+import HistoryModal from '@/components/HistoryModal';
+import { Button } from '@/components/ui/button';
 import { Note, Role } from '@/types/app';
 
 interface TabProps {
   role: Role;
   notes: Note[];
   onAddNote: (content: string) => void;
+  onDeleteNote: (noteId: number) => void;
 }
 
-const AppointmentsTab: React.FC<TabProps> = ({ role, notes, onAddNote }) => {
+const AppointmentsTab: React.FC<TabProps> = ({ role, notes, onAddNote, onDeleteNote }) => {
   const { t } = useLanguage();
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
@@ -24,7 +25,7 @@ const AppointmentsTab: React.FC<TabProps> = ({ role, notes, onAddNote }) => {
       </p>
       
       <NoteInput onAddNote={onAddNote} placeholder={t('add_appointment_note')} role={role} />
-      <NoteDisplay notes={notes} />
+      <NoteDisplay notes={notes.filter(n => !n.is_deleted)} onDeleteNote={onDeleteNote} />
 
       <Button onClick={() => setIsHistoryModalOpen(true)} className="mt-4 w-full">
         {t('view_edit_history')}
