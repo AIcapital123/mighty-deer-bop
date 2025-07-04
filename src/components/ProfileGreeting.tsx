@@ -1,7 +1,6 @@
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Role } from '@/types/app';
-import { CircleUser } from 'lucide-react'; // Using CircleUser for a simple avatar
 
 interface ProfileGreetingProps {
   role: Role;
@@ -20,17 +19,17 @@ const ProfileGreeting: React.FC<ProfileGreetingProps> = ({ role }) => {
     greeting = t('good_evening');
   }
 
-  const roleText = role === 'boss' ? t('boss') : t('assistant');
+  const name = role === 'boss' ? 'Chris' : 'Ann';
   const avatarSrc = role === 'boss' ? '/avatars/IMG_5529.PNG' : '/avatars/IMG_5528.JPG';
 
   return (
     <div className="flex items-center space-x-2 text-gray-800 dark:text-gray-100">
       <img
         src={avatarSrc}
-        alt={`${role} avatar`}
+        alt={`${name}'s avatar`}
         className="w-8 h-8 rounded-full object-cover border-2 border-blue-500 dark:border-blue-400"
       />
-      <span className="text-lg font-medium">{greeting}, {roleText}!</span>
+      <span className="text-lg font-medium">{greeting}, {name}!</span>
     </div>
   );
 };
