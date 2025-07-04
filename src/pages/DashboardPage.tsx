@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import ProfileGreeting from '@/components/ProfileGreeting';
 import PainModeBanner from '@/components/PainModeBanner';
 import { cn } from '@/lib/utils';
-import supabase from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 
 // Placeholder components for each tab
 import AppointmentsTab from '@/pages/tabs/AppointmentsTab';
