@@ -21,10 +21,15 @@ const ProfileGreeting: React.FC<ProfileGreetingProps> = ({ role }) => {
   }
 
   const roleText = role === 'boss' ? t('boss') : t('assistant');
+  const avatarSrc = role === 'boss' ? '/avatars/IMG_5529.PNG' : '/avatars/IMG_5528.JPG';
 
   return (
     <div className="flex items-center space-x-2 text-gray-800 dark:text-gray-100">
-      <CircleUser className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+      <img
+        src={avatarSrc}
+        alt={`${role} avatar`}
+        className="w-8 h-8 rounded-full object-cover border-2 border-blue-500 dark:border-blue-400"
+      />
       <span className="text-lg font-medium">{greeting}, {roleText}!</span>
     </div>
   );

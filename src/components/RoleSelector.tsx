@@ -14,10 +14,6 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ onRoleSelect }) => {
   const { language, setLanguage, t } = useLanguage();
   const [selectedRole, setSelectedRole] = useState<'boss' | 'assistant' | null>(null);
 
-  // Define image paths for the avatars
-  const bossAvatar = '/avatars/IMG_5529.PNG';
-  const assistantAvatar = '/avatars/IMG_5528.JPG';
-
   const handleSelect = (value: string) => {
     setSelectedRole(value as 'boss' | 'assistant');
   };
@@ -62,36 +58,6 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ onRoleSelect }) => {
             </Label>
           </div>
         </RadioGroup>
-
-        {/* Avatars section - visible once a role is selected */}
-        {selectedRole && (
-          <div className="mt-6 mb-6 flex justify-center space-x-8">
-            <div className="flex flex-col items-center">
-              <img
-                src={bossAvatar}
-                alt="Boss Avatar"
-                className={`w-24 h-24 rounded-full object-cover transition-all duration-300 ${
-                  selectedRole === 'boss' ? 'border-4 border-blue-500 shadow-lg' : 'border-4 border-transparent opacity-50'
-                }`}
-              />
-              <p className={`mt-2 text-sm font-medium ${selectedRole === 'boss' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`}>
-                {t('boss')}
-              </p>
-            </div>
-            <div className="flex flex-col items-center">
-              <img
-                src={assistantAvatar}
-                alt="Assistant Avatar"
-                className={`w-24 h-24 rounded-full object-cover transition-all duration-300 ${
-                  selectedRole === 'assistant' ? 'border-4 border-blue-500 shadow-lg' : 'border-4 border-transparent opacity-50'
-                }`}
-              />
-              <p className={`mt-2 text-sm font-medium ${selectedRole === 'assistant' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`}>
-                {t('assistant')}
-              </p>
-            </div>
-          </div>
-        )}
 
         <Button onClick={handleSubmit} disabled={!selectedRole} className="w-full py-3 text-lg">
           {selectedRole ? t(selectedRole) : t('select_a_role_to_continue')}
