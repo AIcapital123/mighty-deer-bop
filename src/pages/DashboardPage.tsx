@@ -23,7 +23,7 @@ import SalaryLogsTab from '@/pages/tabs/SalaryLogsTab';
 const DashboardPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage, t, getDailyMotivationalPhrase } = useLanguage();
 
   const [selectedRole, setSelectedRole] = useState<'boss' | 'assistant' | null>(null);
   const [activeTab, setActiveTab] = useState<string>('appointments'); // Default tab
@@ -90,6 +90,15 @@ const DashboardPage = () => {
           </TabsContent>
         ))}
       </Tabs>
+
+      {selectedRole === 'assistant' && (
+        <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg text-center shadow-md">
+          <p className="text-lg font-semibold text-blue-800 dark:text-blue-200">
+            {getDailyMotivationalPhrase()}
+          </p>
+        </div>
+      )}
+
       <MadeWithDyad />
     </div>
   );
