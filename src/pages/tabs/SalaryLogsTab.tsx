@@ -20,7 +20,7 @@ const SalaryLogsTab: React.FC<TabProps> = ({ role, notes, onAddNote }) => {
       ) : (
         <p className="text-red-500 dark:text-red-400 mb-4">This tab is only visible to the Boss.</p>
       )}
-      <NoteInput onAddNote={onAddNote} placeholder={t('add_a_note')} />
+      <NoteInput onAddNote={onAddNote} placeholder={t('add_a_note')} role={role} />
       <NoteDisplay notes={notes} />
       {/* Future content for Salary & Logs */}
     </div>

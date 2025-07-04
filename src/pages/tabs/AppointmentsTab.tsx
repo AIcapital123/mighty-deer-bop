@@ -19,7 +19,7 @@ const AppointmentsTab: React.FC<TabProps> = ({ role, notes, onAddNote }) => {
         {role === 'boss' ? 'Boss view for Appointments.' : 'Assistant view for Appointments.'}
       </p>
       
-      <NoteInput onAddNote={onAddNote} placeholder={t('add_appointment_note')} />
+      <NoteInput onAddNote={onAddNote} placeholder={t('add_appointment_note')} role={role} />
       <NoteDisplay notes={notes} />
       {/* Future content for Appointments */}
     </div>

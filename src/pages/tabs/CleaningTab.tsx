@@ -18,7 +18,7 @@ const CleaningTab: React.FC<TabProps> = ({ role, notes, onAddNote }) => {
       <p className="text-gray-700 dark:text-gray-300 mb-4">
         {role === 'boss' ? 'Boss view for Cleaning.' : 'Assistant view for Cleaning.'}
       </p>
-      <NoteInput onAddNote={onAddNote} placeholder={t('add_a_note')} />
+      <NoteInput onAddNote={onAddNote} placeholder={t('add_a_note')} role={role} />
       <NoteDisplay notes={notes} />
       {/* Future content for Cleaning */}
     </div>
