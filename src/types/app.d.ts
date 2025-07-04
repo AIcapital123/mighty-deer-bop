@@ -3,10 +3,11 @@
 export type Role = 'boss' | 'assistant';
 
 export interface Note {
-  id: string;
+  id: number;
   content: string;
-  addedBy: Role;
-  timestamp: string;
+  added_by: Role;
+  created_at: string;
+  tab_id: string;
 }
 
 export interface TabData {

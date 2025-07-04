@@ -31,7 +31,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, notes, tit
               <div key={note.id} className="p-3 bg-gray-100 dark:bg-gray-700 rounded-md text-sm">
                 <p className="font-medium text-gray-800 dark:text-gray-200">{note.content}</p>
                 <p className="text-gray-600 dark:text-gray-400">
-                  {t('added_by')}: {t(note.addedBy)} on {note.timestamp}
+                  {t('added_by')}: {t(note.added_by)} on {new Date(note.created_at).toLocaleString()}
                 </p>
               </div>
             ))

@@ -20,7 +20,7 @@ const NoteDisplay: React.FC<NoteDisplayProps> = ({ notes }) => {
         <div key={note.id} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-md shadow-sm border border-gray-200 dark:border-gray-600">
           <p className="text-gray-700 dark:text-gray-200 mb-1">{note.content}</p>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            {t('added_by')}: {t(note.addedBy)} on {note.timestamp}
+            {t('added_by')}: {t(note.added_by)} on {new Date(note.created_at).toLocaleString()}
           </p>
         </div>
       ))}

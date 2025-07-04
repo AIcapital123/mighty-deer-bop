@@ -7,13 +7,15 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { MadeWithDyad } from '@/components/made-with-dyad';
 import {
   Calendar, Phone, ShoppingCart, Heart, Utensils,
-  Brush, TrendingUp, DollarSign, Brain // Changed Head to Brain
+  Brush, TrendingUp, DollarSign, Brain
 } from 'lucide-react';
 import { Note, Role } from '@/types/app';
 import { showSuccess } from '@/utils/toast';
+import { toast } from 'sonner';
 import ProfileGreeting from '@/components/ProfileGreeting';
 import PainModeBanner from '@/components/PainModeBanner';
-import { cn } from '@/lib/utils'; // Import cn for conditional class names
+import { cn } from '@/lib/utils';
+import supabase from '@/integrations/supabase/client';
 
 // Placeholder components for each tab
 import AppointmentsTab from '@/pages/tabs/AppointmentsTab';
@@ -31,27 +33,60 @@ const DashboardPage = () => {
   const { language, setLanguage, t, getDailyMotivationalPhrase } = useLanguage();
 
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-  const [activeTab, setActiveTab] = useState<string>('appointments'); // Default tab
-  const [tabNotes, setTabNotes] = useState<Record<string, Note[]>>({
-    appointments: [],
-    calls: [],
-    shopping: [],
-    health: [],
-    food: [],
-    cleaning: [],
-    productivity: [],
-    salary_logs: [],
-  });
-  const [isPainMode, setIsPainMode] = useState(false); // State for Pain Mode
+  const [activeTab, setActiveTab] = useState<string>('appointments');
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [isPainMode, setIsPainMode] = useState(false);
 
   useEffect(() => {
     if (location.state && location.state.selectedRole) {
       setSelectedRole(location.state.selectedRole);
     } else {
-      // If no role is selected, redirect back to the role selection page
       navigate('/');
     }
   }, [location.state, navigate]);
+
+  useEffect(() => {
+    const fetchNotes = async () => {
+      const { data, error } = await supabase
+        .from('notes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching notes:', error);
+        toast.error('Failed to load notes.');
+      } else if (data) {
+        setNotes(data);
+      }
+    };
+
+    fetchNotes();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedRole) return;
+
+    const channel = supabase
+      .channel('realtime-notes')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'notes' },
+        (payload) => {
+          const newNote = payload.new as Note;
+          setNotes((prevNotes) => [newNote, ...prevNotes].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
+
+          if (newNote.added_by !== selectedRole) {
+            const shortContent = newNote.content.length > 30 ? `${newNote.content.substring(0, 30)}...` : newNote.content;
+            toast.info(`New note from ${t(newNote.added_by)} in ${t(newNote.tab_id)}: "${shortContent}"`);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedRole, t]);
 
   if (!selectedRole) {
     return null; // Or a loading spinner
@@ -61,19 +96,17 @@ const DashboardPage = () => {
     setLanguage(checked ? 'th' : 'en');
   };
 
-  const handleAddNote = (tabId: string, content: string, role: Role) => {
-    const newNote: Note = {
-      id: Date.now().toString(), // Simple unique ID
-      content,
-      addedBy: role,
-      timestamp: new Date().toLocaleString(),
-    };
+  const handleAddNote = async (tabId: string, content: string, role: Role) => {
+    const { error } = await supabase
+      .from('notes')
+      .insert([{ content, added_by: role, tab_id: tabId }]);
 
-    setTabNotes(prevNotes => ({
-      ...prevNotes,
-      [tabId]: [...prevNotes[tabId], newNote],
-    }));
-    showSuccess(t('note_added_successfully'));
+    if (error) {
+      console.error('Error adding note:', error);
+      toast.error('Failed to add note.');
+    } else {
+      showSuccess(t('note_added_successfully'));
+    }
   };
 
   const tabs = [
@@ -84,11 +117,11 @@ const DashboardPage = () => {
     { id: 'food', label: t('food'), icon: Utensils, component: FoodTab, roles: ['boss', 'assistant'], colorClass: 'text-yellow-600 dark:text-yellow-400' },
     { id: 'cleaning', label: t('cleaning'), icon: Brush, component: CleaningTab, roles: ['boss', 'assistant'], colorClass: 'text-indigo-600 dark:text-indigo-400' },
     { id: 'productivity', label: t('productivity'), icon: TrendingUp, component: ProductivityTab, roles: ['boss', 'assistant'], colorClass: 'text-orange-600 dark:text-orange-400' },
-    { id: 'salary_logs', label: t('salary_logs'), icon: DollarSign, component: SalaryLogsTab, roles: ['assistant'], colorClass: 'text-teal-600 dark:text-teal-400' }, // Assistant View Only
+    { id: 'salary_logs', label: t('salary_logs'), icon: DollarSign, component: SalaryLogsTab, roles: ['assistant'], colorClass: 'text-teal-600 dark:text-teal-400' },
   ];
 
   const filteredTabs = tabs.filter(tab => tab.roles.includes(selectedRole));
-  const urgentTabs = ['health', 'food', 'cleaning', 'productivity']; // Tabs to highlight in pain mode
+  const urgentTabs = ['health', 'food', 'cleaning', 'productivity'];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-4 md:p-8">
@@ -99,7 +132,7 @@ const DashboardPage = () => {
             {selectedRole === 'assistant' && (
               <div className="flex items-center space-x-2">
                 <Label htmlFor="pain-mode-toggle" className="text-gray-700 dark:text-gray-200 flex items-center space-x-1">
-                  <Brain className="h-4 w-4" /> {/* Changed Head to Brain */}
+                  <Brain className="h-4 w-4" />
                   <span>{t('pain_mode_on')}</span>
                 </Label>
                 <Switch
@@ -131,9 +164,9 @@ const DashboardPage = () => {
               value={tab.id}
               className={cn(
                 "flex-grow flex items-center justify-center space-x-2",
-                tab.colorClass, // Apply base color
-                isPainMode && selectedRole === 'assistant' && !urgentTabs.includes(tab.id) && "opacity-50 grayscale", // Dim non-urgent tabs
-                isPainMode && selectedRole === 'assistant' && urgentTabs.includes(tab.id) && "ring-2 ring-red-500 dark:ring-red-400" // Highlight urgent tabs
+                tab.colorClass,
+                isPainMode && selectedRole === 'assistant' && !urgentTabs.includes(tab.id) && "opacity-50 grayscale",
+                isPainMode && selectedRole === 'assistant' && urgentTabs.includes(tab.id) && "ring-2 ring-red-500 dark:ring-red-400"
               )}
             >
               {tab.icon && React.createElement(tab.icon, { className: "h-4 w-4" })}
@@ -142,12 +175,12 @@ const DashboardPage = () => {
           ))}
         </TabsList>
         {filteredTabs.map((tab) => {
-          const TabComponent = tab.component; // This is now correctly typed
+          const TabComponent = tab.component;
           return (
             <TabsContent key={tab.id} value={tab.id} className="mt-4">
               <TabComponent
                 role={selectedRole}
-                notes={tabNotes[tab.id]}
+                notes={notes.filter(note => note.tab_id === tab.id)}
                 onAddNote={(content: string) => handleAddNote(tab.id, content, selectedRole)}
               />
             </TabsContent>
