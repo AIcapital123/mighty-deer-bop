@@ -5,6 +5,10 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { MadeWithDyad } from '@/components/made-with-dyad';
+import {
+  Calendar, Phone, ShoppingCart, Heart, Utensils,
+  Brush, TrendingUp, DollarSign
+} from 'lucide-react';
 
 // Placeholder components for each tab
 import AppointmentsTab from '@/pages/tabs/AppointmentsTab';
@@ -42,14 +46,14 @@ const DashboardPage = () => {
   };
 
   const tabs = [
-    { id: 'appointments', label: t('appointments'), component: AppointmentsTab, roles: ['boss', 'assistant'] },
-    { id: 'calls', label: t('calls'), component: CallsTab, roles: ['boss', 'assistant'] },
-    { id: 'shopping', label: t('shopping'), component: ShoppingTab, roles: ['boss', 'assistant'] },
-    { id: 'health', label: t('health'), component: HealthTab, roles: ['boss', 'assistant'] },
-    { id: 'food', label: t('food'), component: FoodTab, roles: ['boss', 'assistant'] },
-    { id: 'cleaning', label: t('cleaning'), component: CleaningTab, roles: ['boss', 'assistant'] },
-    { id: 'productivity', label: t('productivity'), component: ProductivityTab, roles: ['boss', 'assistant'] },
-    { id: 'salary_logs', label: t('salary_logs'), component: SalaryLogsTab, roles: ['assistant'] }, // Assistant View Only
+    { id: 'appointments', label: t('appointments'), icon: Calendar, component: AppointmentsTab, roles: ['boss', 'assistant'] },
+    { id: 'calls', label: t('calls'), icon: Phone, component: CallsTab, roles: ['boss', 'assistant'] },
+    { id: 'shopping', label: t('shopping'), icon: ShoppingCart, component: ShoppingTab, roles: ['boss', 'assistant'] },
+    { id: 'health', label: t('health'), icon: Heart, component: HealthTab, roles: ['boss', 'assistant'] },
+    { id: 'food', label: t('food'), icon: Utensils, component: FoodTab, roles: ['boss', 'assistant'] },
+    { id: 'cleaning', label: t('cleaning'), icon: Brush, component: CleaningTab, roles: ['boss', 'assistant'] },
+    { id: 'productivity', label: t('productivity'), icon: TrendingUp, component: ProductivityTab, roles: ['boss', 'assistant'] },
+    { id: 'salary_logs', label: t('salary_logs'), icon: DollarSign, component: SalaryLogsTab, roles: ['assistant'] }, // Assistant View Only
   ];
 
   const filteredTabs = tabs.filter(tab => tab.roles.includes(selectedRole));
@@ -74,8 +78,9 @@ const DashboardPage = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto flex-wrap">
           {filteredTabs.map((tab) => (
-            <TabsTrigger key={tab.id} value={tab.id} className="flex-grow">
-              {tab.label}
+            <TabsTrigger key={tab.id} value={tab.id} className="flex-grow flex items-center justify-center space-x-2">
+              {tab.icon && React.createElement(tab.icon, { className: "h-4 w-4" })}
+              <span>{tab.label}</span>
             </TabsTrigger>
           ))}
         </TabsList>
