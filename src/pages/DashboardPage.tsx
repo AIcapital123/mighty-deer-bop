@@ -9,6 +9,8 @@ import {
   Calendar, Phone, ShoppingCart, Heart, Utensils,
   Brush, TrendingUp, DollarSign
 } from 'lucide-react';
+import { Note, Role } from '@/types/app';
+import { showSuccess } from '@/utils/toast'; // Import toast utility
 
 // Placeholder components for each tab
 import AppointmentsTab from '@/pages/tabs/AppointmentsTab';
@@ -25,8 +27,18 @@ const DashboardPage = () => {
   const navigate = useNavigate();
   const { language, setLanguage, t, getDailyMotivationalPhrase } = useLanguage();
 
-  const [selectedRole, setSelectedRole] = useState<'boss' | 'assistant' | null>(null);
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [activeTab, setActiveTab] = useState<string>('appointments'); // Default tab
+  const [tabNotes, setTabNotes] = useState<Record<string, Note[]>>({
+    appointments: [],
+    calls: [],
+    shopping: [],
+    health: [],
+    food: [],
+    cleaning: [],
+    productivity: [],
+    salary_logs: [],
+  });
 
   useEffect(() => {
     if (location.state && location.state.selectedRole) {
@@ -43,6 +55,21 @@ const DashboardPage = () => {
 
   const handleLanguageToggle = (checked: boolean) => {
     setLanguage(checked ? 'th' : 'en');
+  };
+
+  const handleAddNote = (tabId: string, content: string, role: Role) => {
+    const newNote: Note = {
+      id: Date.now().toString(), // Simple unique ID
+      content,
+      addedBy: role,
+      timestamp: new Date().toLocaleString(),
+    };
+
+    setTabNotes(prevNotes => ({
+      ...prevNotes,
+      [tabId]: [...prevNotes[tabId], newNote],
+    }));
+    showSuccess(t('note_added_successfully'));
   };
 
   const tabs = [
@@ -84,11 +111,18 @@ const DashboardPage = () => {
             </TabsTrigger>
           ))}
         </TabsList>
-        {filteredTabs.map((tab) => (
-          <TabsContent key={tab.id} value={tab.id} className="mt-4">
-            {React.createElement(tab.component, { role: selectedRole })}
-          </TabsContent>
-        ))}
+        {filteredTabs.map((tab) => {
+          const TabComponent = tab.component;
+          return (
+            <TabsContent key={tab.id} value={tab.id} className="mt-4">
+              <TabComponent
+                role={selectedRole}
+                notes={tabNotes[tab.id]}
+                onAddNote={(content: string) => handleAddNote(tab.id, content, selectedRole)}
+              />
+            </TabsContent>
+          );
+        })}
       </Tabs>
 
       {selectedRole === 'assistant' && (

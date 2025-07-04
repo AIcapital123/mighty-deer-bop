@@ -38,7 +38,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ onRoleSelect }) => {
         />
         <Label htmlFor="language-toggle-home" className="text-gray-700 dark:text-gray-200">{t('thai')}</Label>
       </div>
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md text-center z-10">
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md text-center z-10 border border-gray-200 dark:border-gray-700">
         <h1 className="text-3xl font-bold mb-2 text-gray-800 dark:text-gray-100">{t('app_name')}</h1>
         <p className="text-md mb-6 text-gray-600 dark:text-gray-300">{t('app_description')}</p>
         <h2 className="text-xl mb-6 text-gray-700 dark:text-gray-200">{t('select_your_role')}</h2>

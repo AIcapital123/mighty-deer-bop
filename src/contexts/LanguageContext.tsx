@@ -48,7 +48,14 @@ const translations: Translation = {
       "ความพยายามของคุณได้รับการชื่นชมอย่างแท้จริง",
       "ส่องแสงต่อไป คุณทำได้ดีมาก!"
     ]
-  }
+  },
+  'add_a_note': { en: 'Add a note...', th: 'เพิ่มบันทึก...' },
+  'add_note': { en: 'Add Note', th: 'เพิ่มบันทึก' },
+  'note_added_successfully': { en: 'Note added successfully!', th: 'เพิ่มบันทึกสำเร็จ!' },
+  'no_notes_yet': { en: 'No notes yet.', th: 'ยังไม่มีบันทึก' },
+  'notes_history': { en: 'Notes History', th: 'ประวัติบันทึก' },
+  'added_by': { en: 'Added by', th: 'เพิ่มโดย' },
+  'add_appointment_note': { en: 'Add a note about appointments...', th: 'เพิ่มบันทึกเกี่ยวกับการนัดหมาย...' },
 };
 
 interface LanguageContextType {
