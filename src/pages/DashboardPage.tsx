@@ -9,7 +9,7 @@ import {
   Calendar, Phone, ShoppingCart, Heart, Utensils,
   Brush, TrendingUp, DollarSign, Brain
 } from 'lucide-react';
-import { Note, Role } from '@/types/app';
+import { Note, Role, NoteStatus } from '@/types/app';
 import { showSuccess } from '@/utils/toast';
 import { toast } from 'sonner';
 import ProfileGreeting from '@/components/ProfileGreeting';
@@ -71,15 +71,22 @@ const DashboardPage = () => {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'notes' },
         (payload) => {
-          // Refetch all notes to ensure consistency
           fetchNotes();
 
-          // Handle notifications
+          const newRecord = payload.new as Note;
+          const oldRecord = payload.old as Note;
+
           if (payload.eventType === 'INSERT') {
-            const newNote = payload.new as Note;
-            if (newNote.added_by !== selectedRole) {
-              const shortContent = newNote.content.length > 30 ? `${newNote.content.substring(0, 30)}...` : newNote.content;
-              toast.info(`New note from ${t(newNote.added_by)} in ${t(newNote.tab_id)}: "${shortContent}"`);
+            if (newRecord.added_by !== selectedRole) {
+              toast.info(`${t('new_note_from')} ${t(newRecord.added_by)}: "${newRecord.content.substring(0, 30)}..."`);
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            if (newRecord.status !== oldRecord.status) {
+              // A simple assumption for a 2-person app: if a note's status changes,
+              // notify the person who originally created it, assuming the other person changed it.
+              if (newRecord.added_by === selectedRole) {
+                toast.success(`${t('note_status_updated')}: "${newRecord.content.substring(0, 30)}..." to ${t(newRecord.status || '')}`);
+              }
             }
           }
         }
@@ -102,7 +109,7 @@ const DashboardPage = () => {
   const handleAddNote = async (tabId: string, content: string, role: Role) => {
     const { error } = await supabase
       .from('notes')
-      .insert([{ content, added_by: role, tab_id: tabId }]);
+      .insert([{ content, added_by: role, tab_id: tabId, status: 'Pending' }]);
 
     if (error) {
       console.error('Error adding note:', error);
@@ -125,6 +132,19 @@ const DashboardPage = () => {
     }
   };
 
+  const handleUpdateNoteStatus = async (noteId: number, status: NoteStatus) => {
+    const { error } = await supabase
+      .from('notes')
+      .update({ status })
+      .eq('id', noteId);
+
+    if (error) {
+      toast.error('Failed to update note status.');
+    } else {
+      toast.success('Note status updated.');
+    }
+  };
+
   const tabs = [
     { id: 'appointments', label: t('appointments'), icon: Calendar, component: AppointmentsTab, roles: ['boss', 'assistant'], colorClass: 'text-blue-600 dark:text-blue-400' },
     { id: 'calls', label: t('calls'), icon: Phone, component: CallsTab, roles: ['boss', 'assistant'], colorClass: 'text-purple-600 dark:text-purple-400' },
@@ -133,7 +153,7 @@ const DashboardPage = () => {
     { id: 'food', label: t('food'), icon: Utensils, component: FoodTab, roles: ['boss', 'assistant'], colorClass: 'text-yellow-600 dark:text-yellow-400' },
     { id: 'cleaning', label: t('cleaning'), icon: Brush, component: CleaningTab, roles: ['boss', 'assistant'], colorClass: 'text-indigo-600 dark:text-indigo-400' },
     { id: 'productivity', label: t('productivity'), icon: TrendingUp, component: ProductivityTab, roles: ['boss', 'assistant'], colorClass: 'text-orange-600 dark:text-orange-400' },
-    { id: 'salary_logs', label: t('salary_logs'), icon: DollarSign, component: SalaryLogsTab, roles: ['assistant'], colorClass: 'text-teal-600 dark:text-teal-400' },
+    { id: 'salary_logs', label: t('salary_logs'), icon: DollarSign, component: SalaryLogsTab, roles: ['boss', 'assistant'], colorClass: 'text-teal-600 dark:text-teal-400' },
   ];
 
   const filteredTabs = tabs.filter(tab => tab.roles.includes(selectedRole));
@@ -199,6 +219,7 @@ const DashboardPage = () => {
                 notes={allNotes.filter(note => note.tab_id === tab.id)}
                 onAddNote={(content: string) => handleAddNote(tab.id, content, selectedRole)}
                 onDeleteNote={handleDeleteNote}
+                onUpdateNoteStatus={handleUpdateNoteStatus}
               />
             </TabsContent>
           );

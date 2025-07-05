@@ -33,11 +33,17 @@ const translations: Translation = {
   'add_a_note': { en: 'Add a note...', th: 'เพิ่มบันทึก...' },
   'add_note': { en: 'Add Note', th: 'เพิ่มบันทึก' },
   'note_added_successfully': { en: 'Note added successfully!', th: 'เพิ่มบันทึกสำเร็จ!' },
-  'no_notes_yet': { en: 'No notes yet.', th: 'ยังไม่มีบันทึก' },
-  'notes_history': { en: 'Notes History', th: 'ประวัติบันทึก' },
+  'no_notes_yet': { en: 'No tasks yet.', th: 'ยังไม่มีงาน' },
+  'notes_history': { en: 'Current Tasks', th: 'งานปัจจุบัน' },
   'added_by': { en: 'Added by', th: 'เพิ่มโดย' },
   'add_appointment_note': { en: 'Add a note about appointments...', th: 'เพิ่มบันทึกเกี่ยวกับการนัดหมาย...' },
   'deleted': { en: 'Deleted', th: 'ถูกลบ' },
+  'Urgent': { en: 'Urgent', th: 'ด่วน' },
+  'Pending': { en: 'Pending', th: 'รอดำเนินการ' },
+  'In Progress': { en: 'In Progress', th: 'กำลังดำเนินการ' },
+  'Complete': { en: 'Complete', th: 'เสร็จสมบูรณ์' },
+  'note_status_updated': { en: 'Task status updated', th: 'อัปเดตสถานะงานแล้ว' },
+  'new_note_from': { en: 'New task from', th: 'งานใหม่จาก' },
 
   // New content from UI Copy & Content Pack
   'motivational_messages': {
@@ -213,8 +219,15 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     }
     const value = translation[language];
     if (typeof value !== 'string') {
-      console.warn(`Translation for key '${key}' is not a string, but t() expects a string.`);
-      return key; // Return key or a generic message for misuse
+      // It might be an object for nested translations, but t() is for strings.
+      // Check if it's a simple key-value pair object.
+      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+         // This case is not handled by the simple t() function.
+         // The calling function should handle objects.
+         console.warn(`Translation for key '${key}' is an object, but t() expects a string.`);
+         return key;
+      }
+      return String(value); // Attempt to convert to string
     }
     return value;
   };
@@ -235,7 +248,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
       console.error(`Assistant dashboard tip for tab '${tab}' not found or not an object.`);
       return `Tip for ${tab} not found.`;
     }
-    return tips[tab];
+    return (tips as { [key: string]: string })[tab];
   };
 
   const getNotePrompt = (role: Role): string => {
@@ -263,7 +276,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
       console.error(`Daily check-in prompt for role '${role}' not found or not an object.`);
       return "Daily check-in prompt not found.";
     }
-    return prompts[role];
+    return (prompts as { [key: string]: string })[role];
   };
 
   const getWinOfTheDayExamples = (): string[] => {
@@ -290,7 +303,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
       console.error(`Bonus tracker text for key '${key}' not found or not an object.`);
       return `Bonus text for ${key} not found.`;
     }
-    return text[key];
+    return (text as { [key: string]: string })[key];
   };
 
   const getLanguageToggleTip = (): string => t('language_toggle_tip');

@@ -4,16 +4,17 @@ import NoteInput from '@/components/NoteInput';
 import NoteDisplay from '@/components/NoteDisplay';
 import HistoryModal from '@/components/HistoryModal';
 import { Button } from '@/components/ui/button';
-import { Note, Role } from '@/types/app';
+import { Note, Role, NoteStatus } from '@/types/app';
 
 interface TabProps {
   role: Role;
   notes: Note[];
   onAddNote: (content: string) => void;
   onDeleteNote: (noteId: number) => void;
+  onUpdateNoteStatus: (noteId: number, status: NoteStatus) => void;
 }
 
-const HealthTab: React.FC<TabProps> = ({ role, notes, onAddNote, onDeleteNote }) => {
+const HealthTab: React.FC<TabProps> = ({ role, notes, onAddNote, onDeleteNote, onUpdateNoteStatus }) => {
   const { t } = useLanguage();
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
@@ -24,7 +25,11 @@ const HealthTab: React.FC<TabProps> = ({ role, notes, onAddNote, onDeleteNote })
         {role === 'boss' ? 'Boss view for Health.' : 'Assistant view for Health.'}
       </p>
       <NoteInput onAddNote={onAddNote} placeholder={t('add_a_note')} role={role} />
-      <NoteDisplay notes={notes.filter(n => !n.is_deleted)} onDeleteNote={onDeleteNote} />
+      <NoteDisplay 
+        notes={notes.filter(n => !n.is_deleted)} 
+        onDeleteNote={onDeleteNote}
+        onUpdateNoteStatus={onUpdateNoteStatus}
+      />
 
       <Button onClick={() => setIsHistoryModalOpen(true)} className="mt-4 w-full">
         {t('view_edit_history')}

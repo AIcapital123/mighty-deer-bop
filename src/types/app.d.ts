@@ -1,6 +1,7 @@
 // src/types/app.d.ts
 // This file defines core application types.
 export type Role = 'boss' | 'assistant';
+export type NoteStatus = 'Urgent' | 'Pending' | 'In Progress' | 'Complete';
 
 export interface Note {
   id: number;
@@ -9,6 +10,7 @@ export interface Note {
   created_at: string;
   tab_id: string;
   is_deleted?: boolean;
+  status?: NoteStatus;
 }
 
 export interface TabData {

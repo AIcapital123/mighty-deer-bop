@@ -4,16 +4,17 @@ import NoteInput from '@/components/NoteInput';
 import NoteDisplay from '@/components/NoteDisplay';
 import HistoryModal from '@/components/HistoryModal';
 import { Button } from '@/components/ui/button';
-import { Note, Role } from '@/types/app';
+import { Note, Role, NoteStatus } from '@/types/app';
 
 interface TabProps {
   role: Role;
   notes: Note[];
   onAddNote: (content: string) => void;
   onDeleteNote: (noteId: number) => void;
+  onUpdateNoteStatus: (noteId: number, status: NoteStatus) => void;
 }
 
-const AppointmentsTab: React.FC<TabProps> = ({ role, notes, onAddNote, onDeleteNote }) => {
+const AppointmentsTab: React.FC<TabProps> = ({ role, notes, onAddNote, onDeleteNote, onUpdateNoteStatus }) => {
   const { t } = useLanguage();
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
@@ -25,7 +26,11 @@ const AppointmentsTab: React.FC<TabProps> = ({ role, notes, onAddNote, onDeleteN
       </p>
       
       <NoteInput onAddNote={onAddNote} placeholder={t('add_appointment_note')} role={role} />
-      <NoteDisplay notes={notes.filter(n => !n.is_deleted)} onDeleteNote={onDeleteNote} />
+      <NoteDisplay 
+        notes={notes.filter(n => !n.is_deleted)} 
+        onDeleteNote={onDeleteNote}
+        onUpdateNoteStatus={onUpdateNoteStatus}
+      />
 
       <Button onClick={() => setIsHistoryModalOpen(true)} className="mt-4 w-full">
         {t('view_edit_history')}
