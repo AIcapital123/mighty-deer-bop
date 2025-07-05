@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
@@ -35,6 +35,7 @@ const DashboardPage = () => {
   const [activeTab, setActiveTab] = useState<string>('appointments');
   const [allNotes, setAllNotes] = useState<Note[]>([]);
   const [isPainMode, setIsPainMode] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (location.state && location.state.selectedRole) {
@@ -66,32 +67,38 @@ const DashboardPage = () => {
     if (!selectedRole) return;
 
     const channel = supabase
-      .channel('realtime-notes-all-events')
+      .channel(`dashboard-notes-${selectedRole}-${Date.now()}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'notes' },
         (payload) => {
-          fetchNotes();
+          fetchNotes(); // Refresh data on any change
 
           const newRecord = payload.new as Note;
           const oldRecord = payload.old as Note;
 
           if (payload.eventType === 'INSERT') {
+            // Notify if the note was added by the other user
             if (newRecord.added_by !== selectedRole) {
-              toast.info(`${t('new_note_from')} ${t(newRecord.added_by)}: "${newRecord.content.substring(0, 30)}..."`);
+              toast.info(`${t('new_note_from')} ${t(newRecord.added_by)}`, {
+                description: `"${newRecord.content.substring(0, 50)}..."`,
+              });
             }
           } else if (payload.eventType === 'UPDATE') {
-            if (newRecord.status !== oldRecord.status) {
-              // A simple assumption for a 2-person app: if a note's status changes,
-              // notify the person who originally created it, assuming the other person changed it.
-              if (newRecord.added_by === selectedRole) {
-                toast.success(`${t('note_status_updated')}: "${newRecord.content.substring(0, 30)}..." to ${t(newRecord.status || '')}`);
-              }
+            // Notify the creator of the note that its status has changed
+            if (newRecord.status !== oldRecord.status && newRecord.added_by === selectedRole) {
+              toast.success(t('note_status_updated'), {
+                description: `"${newRecord.content.substring(0, 30)}..." is now ${t(newRecord.status || '')}`,
+              });
             }
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR') {
+          toast.error('Connection error. Real-time updates may not work.');
+        }
+      });
 
     return () => {
       supabase.removeChannel(channel);
@@ -104,6 +111,13 @@ const DashboardPage = () => {
 
   const handleLanguageToggle = (checked: boolean) => {
     setLanguage(checked ? 'th' : 'en');
+  };
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    setTimeout(() => {
+      contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const handleAddNote = async (tabId: string, content: string, role: Role) => {
@@ -192,7 +206,7 @@ const DashboardPage = () => {
         {isPainMode && selectedRole === 'assistant' && <PainModeBanner />}
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-4">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full mt-4">
         <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto flex-wrap">
           {filteredTabs.map((tab) => (
             <TabsTrigger
@@ -210,20 +224,25 @@ const DashboardPage = () => {
             </TabsTrigger>
           ))}
         </TabsList>
-        {filteredTabs.map((tab) => {
-          const TabComponent = tab.component;
-          return (
-            <TabsContent key={tab.id} value={tab.id} className="mt-4">
-              <TabComponent
-                role={selectedRole}
-                notes={allNotes.filter(note => note.tab_id === tab.id)}
-                onAddNote={(content: string) => handleAddNote(tab.id, content, selectedRole)}
-                onDeleteNote={handleDeleteNote}
-                onUpdateNoteStatus={handleUpdateNoteStatus}
-              />
-            </TabsContent>
-          );
-        })}
+        <div ref={contentRef} className="scroll-mt-4">
+          {filteredTabs.map((tab) => {
+            const TabComponent = tab.component;
+            return (
+              <TabsContent key={tab.id} value={tab.id} className="mt-4">
+                <TabComponent
+                  role={selectedRole}
+                  notes={allNotes.filter(note => note.tab_id === tab.id)}
+                  onAddNote={(content: string) => handleAddNote(tab.id, content, selectedRole)}
+                  onDeleteNote={handleDeleteNote}
+                  onUpdateNoteStatus={handleUpdateNoteStatus}
+                  label={tab.label}
+                  icon={tab.icon}
+                  colorClass={tab.colorClass}
+                />
+              </TabsContent>
+            );
+          })}
+        </div>
       </Tabs>
 
       {selectedRole === 'assistant' && (

@@ -4,23 +4,28 @@ import NoteInput from '@/components/NoteInput';
 import NoteDisplay from '@/components/NoteDisplay';
 import HistoryModal from '@/components/HistoryModal';
 import { Button } from '@/components/ui/button';
-import { Note, Role, NoteStatus } from '@/types/app';
+import { TabComponentProps } from '@/types/tabs';
+import { cn } from '@/lib/utils';
 
-interface TabProps {
-  role: Role;
-  notes: Note[];
-  onAddNote: (content: string) => void;
-  onDeleteNote: (noteId: number) => void;
-  onUpdateNoteStatus: (noteId: number, status: NoteStatus) => void;
-}
-
-const CallsTab: React.FC<TabProps> = ({ role, notes, onAddNote, onDeleteNote, onUpdateNoteStatus }) => {
+const CallsTab: React.FC<TabComponentProps> = ({
+  role,
+  notes,
+  onAddNote,
+  onDeleteNote,
+  onUpdateNoteStatus,
+  label,
+  icon,
+  colorClass,
+}) => {
   const { t } = useLanguage();
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
   return (
     <div className="p-4 border rounded-lg bg-white dark:bg-gray-800 shadow-sm">
-      <h2 className="text-2xl font-semibold mb-4">{t('calls')}</h2>
+      <h2 className={cn("text-2xl font-semibold mb-4 flex items-center", colorClass)}>
+        {React.createElement(icon, { className: "h-6 w-6 mr-2" })}
+        <span>{label}</span>
+      </h2>
       <p className="text-gray-700 dark:text-gray-300 mb-4">
         {role === 'boss' ? 'Boss view for Calls.' : 'Assistant view for Calls.'}
       </p>

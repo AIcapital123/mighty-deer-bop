@@ -5,23 +5,28 @@ import NoteDisplay from '@/components/NoteDisplay';
 import DailyChecklist from '@/components/DailyChecklist';
 import HistoryModal from '@/components/HistoryModal';
 import { Button } from '@/components/ui/button';
-import { Note, Role, NoteStatus } from '@/types/app';
+import { TabComponentProps } from '@/types/tabs';
+import { cn } from '@/lib/utils';
 
-interface TabProps {
-  role: Role;
-  notes: Note[];
-  onAddNote: (content: string) => void;
-  onDeleteNote: (noteId: number) => void;
-  onUpdateNoteStatus: (noteId: number, status: NoteStatus) => void;
-}
-
-const ProductivityTab: React.FC<TabProps> = ({ role, notes, onAddNote, onDeleteNote, onUpdateNoteStatus }) => {
+const ProductivityTab: React.FC<TabComponentProps> = ({
+  role,
+  notes,
+  onAddNote,
+  onDeleteNote,
+  onUpdateNoteStatus,
+  label,
+  icon,
+  colorClass,
+}) => {
   const { t } = useLanguage();
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
   return (
     <div className="p-4 border rounded-lg bg-white dark:bg-gray-800 shadow-sm">
-      <h2 className="text-2xl font-semibold mb-4">{t('productivity')}</h2>
+      <h2 className={cn("text-2xl font-semibold mb-4 flex items-center", colorClass)}>
+        {React.createElement(icon, { className: "h-6 w-6 mr-2" })}
+        <span>{label}</span>
+      </h2>
       <p className="text-gray-700 dark:text-gray-300 mb-4">
         {role === 'boss' ? 'Boss view for Productivity.' : 'Assistant view for Productivity.'}
       </p>
