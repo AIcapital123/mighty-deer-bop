@@ -28,19 +28,22 @@ const translations: Translation = {
   'close': { en: 'Close', th: 'ปิด' },
   'deleted': { en: 'Deleted', th: 'ถูกลบ' },
 
-  // New Tabs
-  'overview': { en: 'Overview', th: 'ภาพรวม' },
-  'tasks': { en: 'Tasks', th: 'งาน' },
-  'salary': { en: 'Salary', th: 'เงินเดือน' },
-  'notes': { en: 'Notes', th: 'โน้ต' },
+  // Tabs
+  'appointments': { en: 'Appointments', th: 'นัดหมาย' },
+  'calls': { en: 'Calls', th: 'การโทร' },
+  'shopping': { en: 'Shopping', th: 'การซื้อของ' },
+  'health': { en: 'Health', th: 'สุขภาพ' },
+  'food': { en: 'Food', th: 'อาหาร' },
+  'cleaning': { en: 'Cleaning', th: 'การทำความสะอาด' },
+  'productivity': { en: 'Productivity', th: 'ประสิทธิภาพ' },
+  'salary_logs': { en: 'Salary & Logs', th: 'เงินเดือนและบันทึก' },
 
-  // Notes Tab
-  'add_new_note_or_task': { en: 'Add a new note or task...', th: 'เพิ่มโน้ตหรืองานใหม่...' },
-  'set_status': { en: 'Set Status', th: 'ตั้งสถานะ' },
+  // Notes
+  'add_a_note': { en: 'Add a note...', th: 'เพิ่มบันทึก...' },
   'add_note': { en: 'Add Note', th: 'เพิ่มบันทึก' },
   'note_added_successfully': { en: 'Note added successfully!', th: 'เพิ่มบันทึกสำเร็จ!' },
   'no_notes_yet': { en: 'No notes yet.', th: 'ยังไม่มีบันทึก' },
-  'notes_history': { en: 'Notes & Tasks History', th: 'ประวัติโน้ตและงาน' },
+  'notes_history': { en: 'Notes History', th: 'ประวัติบันทึก' },
   'added_by': { en: 'Added by', th: 'เพิ่มโดย' },
   'view_edit_history': { en: 'View Edit History', th: 'ดูประวัติการแก้ไข' },
   'history': { en: 'History', th: 'ประวัติ' },
@@ -68,35 +71,6 @@ const translations: Translation = {
       "ทิ้งข้อความเตือนความจำหรืออัปเดตเล็กน้อย"
     ]
   },
-
-  // Statuses
-  'Urgent': { en: 'Urgent', th: 'ด่วน' },
-  'Pending': { en: 'Pending', th: 'รอดำเนินการ' },
-  'In Progress': { en: 'In Progress', th: 'กำลังดำเนินการ' },
-  'Complete': { en: 'Complete', th: 'เสร็จสมบูรณ์' },
-
-  // Salary Tab
-  'my_salary_overview': { en: 'My Salary Overview', th: 'ภาพรวมเงินเดือนของฉัน' },
-  'base_salary': { en: 'Base Salary', th: 'เงินเดือนพื้นฐาน' },
-  'bonus_this_month': { en: 'Bonus This Month', th: 'โบนัสเดือนนี้' },
-  'bonus_description': { en: 'Bonus is based on productivity, care, and weekly consistency.', th: 'โบนัสขึ้นอยู่กับประสิทธิภาพ ความเอาใจใส่ และความสม่ำเสมอรายสัปดาห์' },
-  'assistant_compensation': { en: 'Assistant Compensation', th: 'ค่าตอบแทนผู้ช่วย' },
-  'monthly_base_salary': { en: 'Monthly Base Salary', th: 'เงินเดือนพื้นฐานรายเดือน' },
-  'update_bonus_amount': { en: 'Update Bonus Amount', th: 'อัปเดตจำนวนโบนัส' },
-  'save_bonus': { en: 'Save Bonus', th: 'บันทึกโบนัส' },
-  'bonus_updated': { en: 'Bonus updated.', th: 'อัปเดตโบนัสแล้ว' },
-
-  // Checklists
-  'todays_focus': { en: "Today’s Focus", th: 'สิ่งที่ต้องให้ความสำคัญวันนี้' },
-  'prepare_quiet_work_area': { en: 'Prepare quiet work area', th: 'เตรียมพื้นที่ทำงานที่เงียบสงบ' },
-  'handle_food_and_water': { en: 'Handle food and water', th: 'จัดการอาหารและน้ำ' },
-  'check_appointments': { en: 'Check appointments', th: 'ตรวจสอบนัดหมาย' },
-  'minimize_distractions': { en: 'Minimize distractions', th: 'ลดสิ่งรบกวน' },
-  'boss_priorities_today': { en: "Boss's Priorities Today", th: 'ลำดับความสำคัญของเจ้านายวันนี้' },
-  'check_assistant_updates': { en: "Check assistant’s updates", th: 'ตรวจสอบอัปเดตจากผู้ช่วย' },
-  'log_pain_condition': { en: 'Log pain condition if applicable', th: 'บันทึกอาการเจ็บปวด (ถ้ามี)' },
-  'approve_urgent_tasks': { en: 'Approve any urgent tasks', th: 'อนุมัติงานด่วน' },
-  'leave_note_or_motivation': { en: 'Leave note or motivation if needed', th: 'ทิ้งโน้ตหรือให้กำลังใจ (ถ้าจำเป็น)' },
 
   // Pain Mode
   'pain_mode_on': { en: 'Pain Mode ON', th: 'โหมดเจ็บปวดเปิดอยู่' },
@@ -155,7 +129,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     const key = `${role}_note_prompts`;
     const prompts = translations[key]?.[language];
     if (!Array.isArray(prompts)) {
-      return t('add_new_note_or_task'); // Fallback
+      return t('add_a_note'); // Fallback
     }
     const randomIndex = Math.floor(Math.random() * prompts.length);
     return prompts[randomIndex];

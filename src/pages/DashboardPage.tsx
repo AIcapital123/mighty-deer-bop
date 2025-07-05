@@ -5,8 +5,11 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { MadeWithDyad } from '@/components/made-with-dyad';
-import { LayoutDashboard, ClipboardList, Wallet, MessageSquare, Brain } from 'lucide-react';
-import { Note, Role, NoteStatus } from '@/types/app';
+import {
+  Calendar, Phone, ShoppingCart, Heart, Utensils,
+  Brush, TrendingUp, DollarSign, Brain
+} from 'lucide-react';
+import { Note, Role } from '@/types/app';
 import { showSuccess } from '@/utils/toast';
 import { toast } from 'sonner';
 import ProfileGreeting from '@/components/ProfileGreeting';
@@ -14,11 +17,14 @@ import PainModeBanner from '@/components/PainModeBanner';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 
-// New Tab Components
-import NotesTab from '@/pages/tabs/NotesTab';
-import SalaryTab from '@/pages/tabs/SalaryTab';
-import AssistantTasksTab from '@/pages/tabs/AssistantTasksTab';
-import BossOverviewTab from '@/pages/tabs/BossOverviewTab';
+import AppointmentsTab from '@/pages/tabs/AppointmentsTab';
+import CallsTab from '@/pages/tabs/CallsTab';
+import ShoppingTab from '@/pages/tabs/ShoppingTab';
+import HealthTab from '@/pages/tabs/HealthTab';
+import FoodTab from '@/pages/tabs/FoodTab';
+import CleaningTab from '@/pages/tabs/CleaningTab';
+import ProductivityTab from '@/pages/tabs/ProductivityTab';
+import SalaryLogsTab from '@/pages/tabs/SalaryLogsTab';
 
 const DashboardPage = () => {
   const location = useLocation();
@@ -26,16 +32,13 @@ const DashboardPage = () => {
   const { language, setLanguage, t, getDailyMotivationalPhrase } = useLanguage();
 
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-  const [activeTab, setActiveTab] = useState<string>('notes');
+  const [activeTab, setActiveTab] = useState<string>('appointments');
   const [allNotes, setAllNotes] = useState<Note[]>([]);
   const [isPainMode, setIsPainMode] = useState(false);
 
   useEffect(() => {
     if (location.state && location.state.selectedRole) {
-      const role = location.state.selectedRole;
-      setSelectedRole(role);
-      // Set default tab based on role
-      setActiveTab(role === 'boss' ? 'overview' : 'tasks');
+      setSelectedRole(location.state.selectedRole);
     } else {
       navigate('/');
     }
@@ -62,7 +65,7 @@ const DashboardPage = () => {
     if (!selectedRole) return;
 
     const channel = supabase
-      .channel('realtime-notes-dashboard')
+      .channel('realtime-notes-dashboard-revert')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'notes' },
@@ -71,7 +74,7 @@ const DashboardPage = () => {
           if (payload.eventType === 'INSERT') {
             const newNote = payload.new as Note;
             if (newNote.added_by !== selectedRole) {
-              toast.info(`New note from ${t(newNote.added_by)}: "${newNote.content.substring(0, 30)}..."`);
+              toast.info(`New note from ${t(newNote.added_by)} in ${t(newNote.tab_id)}: "${newNote.content.substring(0, 30)}..."`);
             }
           }
         }
@@ -87,12 +90,15 @@ const DashboardPage = () => {
     return null;
   }
 
-  const handleLanguageToggle = (checked: boolean) => setLanguage(checked ? 'th' : 'en');
+  const handleLanguageToggle = (checked: boolean) => {
+    setLanguage(checked ? 'th' : 'en');
+  };
 
-  const handleAddNote = async (content: string, status: NoteStatus) => {
+  const handleAddNote = async (tabId: string, content: string) => {
+    if (!selectedRole) return;
     const { error } = await supabase
       .from('notes')
-      .insert([{ content, status, added_by: selectedRole, tab_id: 'Notes' }]);
+      .insert([{ content, added_by: selectedRole, tab_id: tabId, status: 'Pending' }]);
 
     if (error) {
       toast.error('Failed to add note.');
@@ -114,19 +120,19 @@ const DashboardPage = () => {
     }
   };
 
-  const bossTabs = [
-    { id: 'overview', label: t('overview'), icon: LayoutDashboard, component: BossOverviewTab },
-    { id: 'salary', label: t('salary'), icon: Wallet, component: SalaryTab },
-    { id: 'notes', label: t('notes'), icon: MessageSquare, component: NotesTab },
+  const tabs = [
+    { id: 'appointments', label: t('appointments'), icon: Calendar, component: AppointmentsTab, roles: ['boss', 'assistant'], colorClass: 'text-blue-600 dark:text-blue-400' },
+    { id: 'calls', label: t('calls'), icon: Phone, component: CallsTab, roles: ['boss', 'assistant'], colorClass: 'text-purple-600 dark:text-purple-400' },
+    { id: 'shopping', label: t('shopping'), icon: ShoppingCart, component: ShoppingTab, roles: ['boss', 'assistant'], colorClass: 'text-green-600 dark:text-green-400' },
+    { id: 'health', label: t('health'), icon: Heart, component: HealthTab, roles: ['boss', 'assistant'], colorClass: 'text-red-600 dark:text-red-400' },
+    { id: 'food', label: t('food'), icon: Utensils, component: FoodTab, roles: ['boss', 'assistant'], colorClass: 'text-yellow-600 dark:text-yellow-400' },
+    { id: 'cleaning', label: t('cleaning'), icon: Brush, component: CleaningTab, roles: ['boss', 'assistant'], colorClass: 'text-indigo-600 dark:text-indigo-400' },
+    { id: 'productivity', label: t('productivity'), icon: TrendingUp, component: ProductivityTab, roles: ['boss', 'assistant'], colorClass: 'text-orange-600 dark:text-orange-400' },
+    { id: 'salary_logs', label: t('salary_logs'), icon: DollarSign, component: SalaryLogsTab, roles: ['boss', 'assistant'], colorClass: 'text-teal-600 dark:text-teal-400' },
   ];
 
-  const assistantTabs = [
-    { id: 'tasks', label: t('tasks'), icon: ClipboardList, component: AssistantTasksTab },
-    { id: 'salary', label: t('salary'), icon: Wallet, component: SalaryTab },
-    { id: 'notes', label: t('notes'), icon: MessageSquare, component: NotesTab },
-  ];
-
-  const tabs = selectedRole === 'boss' ? bossTabs : assistantTabs;
+  const filteredTabs = tabs.filter(tab => tab.roles.includes(selectedRole));
+  const urgentTabs = ['health', 'food', 'cleaning', 'productivity'];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-4 md:p-8">
@@ -155,28 +161,33 @@ const DashboardPage = () => {
 
       <main className="w-full mt-4">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
-            {tabs.map((tab) => (
-              <TabsTrigger key={tab.id} value={tab.id} className="text-base">
-                <tab.icon className="h-5 w-5 mr-2" />
-                {tab.label}
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto flex-wrap">
+            {filteredTabs.map((tab) => (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                className={cn(
+                  "flex-grow flex items-center justify-center space-x-2 text-lg",
+                  tab.colorClass,
+                  isPainMode && selectedRole === 'assistant' && !urgentTabs.includes(tab.id) && "opacity-50 grayscale",
+                  isPainMode && selectedRole === 'assistant' && urgentTabs.includes(tab.id) && "ring-2 ring-red-500 dark:ring-red-400"
+                )}
+              >
+                <tab.icon className="h-5 w-5" />
+                <span>{tab.label}</span>
               </TabsTrigger>
             ))}
           </TabsList>
-          {tabs.map((tab) => {
+          {filteredTabs.map((tab) => {
             const TabComponent = tab.component;
             return (
               <TabsContent key={tab.id} value={tab.id} className="mt-4">
-                {tab.id === 'notes' ? (
-                  <NotesTab
-                    role={selectedRole}
-                    notes={allNotes}
-                    onAddNote={handleAddNote}
-                    onDeleteNote={handleDeleteNote}
-                  />
-                ) : (
-                  <TabComponent role={selectedRole} />
-                )}
+                <TabComponent
+                  role={selectedRole}
+                  notes={allNotes.filter(note => note.tab_id === tab.id)}
+                  onAddNote={(content: string) => handleAddNote(tab.id, content)}
+                  onDeleteNote={handleDeleteNote}
+                />
               </TabsContent>
             );
           })}
