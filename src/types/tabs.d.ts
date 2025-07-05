@@ -7,6 +7,7 @@ export interface TabComponentProps {
   onAddNote: (content: string) => void;
   onDeleteNote: (noteId: number) => void;
   onUpdateNoteStatus: (noteId: number, status: NoteStatus) => void;
+  tabId: string;
   label: string;
   icon: React.ElementType;
   colorClass: string;

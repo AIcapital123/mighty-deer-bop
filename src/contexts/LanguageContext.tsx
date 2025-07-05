@@ -44,8 +44,28 @@ const translations: Translation = {
   'Complete': { en: 'Complete', th: 'เสร็จสมบูรณ์' },
   'note_status_updated': { en: 'Task status updated', th: 'อัปเดตสถานะงานแล้ว' },
   'new_note_from': { en: 'New task from', th: 'งานใหม่จาก' },
-
-  // New content from UI Copy & Content Pack
+  'category_descriptions': {
+    en: {
+      appointments: 'Manage and track all upcoming appointments and schedules.',
+      calls: 'Log important calls and follow-up actions.',
+      shopping: 'Keep a running list of shopping needs and purchases.',
+      health: 'Monitor health-related tasks, symptoms, and wellness goals.',
+      food: 'Coordinate meal planning, groceries, and dietary notes.',
+      cleaning: 'Organize cleaning schedules and household chores.',
+      productivity: 'Track tasks and wins to boost daily productivity.',
+      salary_logs: 'Maintain a secure log of salary payments and financial records.',
+    },
+    th: {
+      appointments: 'จัดการและติดตามนัดหมายและกำหนดการทั้งหมด',
+      calls: 'บันทึกการโทรที่สำคัญและรายการที่ต้องติดตามผล',
+      shopping: 'จัดทำรายการซื้อของและสินค้าที่ต้องการ',
+      health: 'ติดตามงานที่เกี่ยวกับสุขภาพ, อาการ, และเป้าหมายด้านสุขภาวะ',
+      food: 'ประสานงานการวางแผนมื้ออาหาร, ของชำ, และบันทึกเกี่ยวกับอาหาร',
+      cleaning: 'จัดระเบียบตารางการทำความสะอาดและงานบ้าน',
+      productivity: 'ติดตามงานและผลสำเร็จเพื่อเพิ่มประสิทธิภาพในแต่ละวัน',
+      salary_logs: 'เก็บรักษาบันทึกการจ่ายเงินเดือนและข้อมูลทางการเงินอย่างปลอดภัย',
+    }
+  },
   'motivational_messages': {
     en: [
       "Helping him focus helps both of you move forward.",
@@ -193,6 +213,7 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: string) => string;
+  getCategoryDescription: (tabId: string) => string;
   getDailyMotivationalPhrase: () => string;
   getAssistantDashboardTip: (tab: string) => string;
   getNotePrompt: (role: Role) => string;
@@ -219,17 +240,22 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     }
     const value = translation[language];
     if (typeof value !== 'string') {
-      // It might be an object for nested translations, but t() is for strings.
-      // Check if it's a simple key-value pair object.
       if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-         // This case is not handled by the simple t() function.
-         // The calling function should handle objects.
          console.warn(`Translation for key '${key}' is an object, but t() expects a string.`);
          return key;
       }
-      return String(value); // Attempt to convert to string
+      return String(value);
     }
     return value;
+  };
+
+  const getCategoryDescription = (tabId: string): string => {
+    const descriptions = translations['category_descriptions'][language];
+    if (typeof descriptions !== 'object' || Array.isArray(descriptions) || !(tabId in descriptions)) {
+      console.error(`Category description for tab '${tabId}' not found.`);
+      return `Description for ${tabId} not found.`;
+    }
+    return (descriptions as { [key: string]: string })[tabId];
   };
 
   const getDailyMotivationalPhrase = (): string => {
@@ -315,6 +341,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
       language,
       setLanguage,
       t,
+      getCategoryDescription,
       getDailyMotivationalPhrase,
       getAssistantDashboardTip,
       getNotePrompt,

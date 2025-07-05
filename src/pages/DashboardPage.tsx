@@ -72,20 +72,18 @@ const DashboardPage = () => {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'notes' },
         (payload) => {
-          fetchNotes(); // Refresh data on any change
+          fetchNotes(); 
 
           const newRecord = payload.new as Note;
           const oldRecord = payload.old as Note;
 
           if (payload.eventType === 'INSERT') {
-            // Notify if the note was added by the other user
             if (newRecord.added_by !== selectedRole) {
               toast.info(`${t('new_note_from')} ${t(newRecord.added_by)}`, {
                 description: `"${newRecord.content.substring(0, 50)}..."`,
               });
             }
           } else if (payload.eventType === 'UPDATE') {
-            // Notify the creator of the note that its status has changed
             if (newRecord.status !== oldRecord.status && newRecord.added_by === selectedRole) {
               toast.success(t('note_status_updated'), {
                 description: `"${newRecord.content.substring(0, 30)}..." is now ${t(newRecord.status || '')}`,
@@ -235,6 +233,7 @@ const DashboardPage = () => {
                   onAddNote={(content: string) => handleAddNote(tab.id, content, selectedRole)}
                   onDeleteNote={handleDeleteNote}
                   onUpdateNoteStatus={handleUpdateNoteStatus}
+                  tabId={tab.id}
                   label={tab.label}
                   icon={tab.icon}
                   colorClass={tab.colorClass}
