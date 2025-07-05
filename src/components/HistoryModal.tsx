@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Note } from '@/types/app';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
-import StatusBadge from './StatusBadge';
 
 interface HistoryModalProps {
   isOpen: boolean;
@@ -32,13 +31,10 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, notes, tit
             notes.map((note) => (
               <div key={note.id} className={cn("p-3 rounded-md text-sm", note.is_deleted ? "bg-red-100 dark:bg-red-900/50 opacity-60" : "bg-gray-100 dark:bg-gray-700")}>
                 <p className={cn("font-medium text-gray-800 dark:text-gray-200", note.is_deleted && "line-through")}>{note.content}</p>
-                <div className="text-gray-600 dark:text-gray-400 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-                  {note.status && <StatusBadge status={note.status} />}
-                  {note.category && <span className="italic">{t(note.category)}</span>}
-                  <span>{t('added_by')}: {t(note.added_by)}</span>
-                  <span>{new Date(note.created_at).toLocaleDateString()}</span>
-                  {note.is_deleted && <span className="text-red-500 font-semibold ml-1">({t('deleted')})</span>}
-                </div>
+                <p className="text-gray-600 dark:text-gray-400">
+                  {t('added_by')}: {t(note.added_by)} on {new Date(note.created_at).toLocaleString()}
+                  {note.is_deleted && <span className="text-red-500 font-semibold ml-2">({t('deleted')})</span>}
+                </p>
               </div>
             ))
           )}
